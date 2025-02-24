@@ -4,6 +4,7 @@
 
 #define MAX_LINE_COUNT_FOR_FILE 1024
 #define USERNAME getenv("USER")
+#define WORKING_DIR getenv("PWD")
 
 void echoFuncOptions(char options[256]) {
   printf("%s$> echo ", USERNAME);
@@ -24,6 +25,11 @@ void readFuncOptions(char options[256]) {
 
 void readFuncFile(char file[1024]) {
   scanf("%[^\n]s", file);
+  getchar();
+}
+
+void cdFuncDir(char dir[1024]) {
+  scanf("%[^\n]s", dir);
   getchar();
 }
 
@@ -185,6 +191,46 @@ void readFunc() {
   readFileFromTop(file, countLines(fopen(file, "r")));
 }
 
+int getPosOfLastSlash(char dir[1024]) {
+  int posOfLastSlash = 0;
+
+  int lenOfDir = strlen(dir);
+  int i = 0;
+  for (i = 0; i < lenOfDir; i++) {
+    if (dir[i] == '/') {
+    }
+  }
+
+  return posOfLastSlash;
+}
+
+void cdFunc() {
+  char dir[1024];
+
+  cdFuncDir(dir);
+
+  char newDir[1024] = {0};
+
+  int posOfLastSlash = getPosOfLastSlash(WORKING_DIR);
+
+  if (strcmp(dir, "..") == 0) {
+    if (strlen(WORKING_DIR) == 1 || posOfLastSlash == 0) {
+      printf("Cannot go back even further\n");
+      return;
+    }
+
+    int lenOfDir = strlen(WORKING_DIR);
+    int i = 0;
+    while (i < lenOfDir && i < posOfLastSlash && i < 1023) {
+      newDir[i] = WORKING_DIR[i];
+      i++;
+    }
+    newDir[i] = '\0'; // Null terminate the string
+  }
+
+  printf("New Dir: %s\n", newDir); // Added newline
+}
+
 void processInput(char input[256]) {
   // when you input echo it will go into the echo function since I want my shell
   // for you to first input the command, then the options and then the input
@@ -194,6 +240,8 @@ void processInput(char input[256]) {
     readFunc();
   } else if (strcmp(input, "clear") == 0) {
     system("clear");
+  } else if (strcmp(input, "cd") == 0) {
+    cdFunc();
   }
 }
 
