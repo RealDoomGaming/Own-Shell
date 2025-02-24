@@ -1,13 +1,15 @@
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define MAX_LINE_COUNT_FOR_FILE 1024
 #define USERNAME getenv("USER")
 #define WORKING_DIR getenv("PWD")
 
 void echoFuncOptions(char options[256]) {
-  printf("%s$> echo ", USERNAME);
+  printf("%s$%s> echo ", USERNAME, WORKING_DIR);
   scanf("%[^\n]s", options);
   getchar();
 }
@@ -18,7 +20,7 @@ void echoFuncOutput(char output[1024]) {
 }
 
 void readFuncOptions(char options[256]) {
-  printf("%s$> read ", USERNAME);
+  printf("%s$%s> read ", USERNAME, WORKING_DIR);
   scanf("%[^\n]s", options);
   getchar();
 }
@@ -29,6 +31,7 @@ void readFuncFile(char file[1024]) {
 }
 
 void cdFuncDir(char dir[1024]) {
+  printf("%s$%s> cd ", USERNAME, WORKING_DIR);
   scanf("%[^\n]s", dir);
   getchar();
 }
@@ -45,9 +48,9 @@ void echoFunc() {
   int sizeOfOptions = strlen(options);
 
   if (sizeOfOptions > 0) {
-    printf("%s$> echo %s ", USERNAME, options);
+    printf("%s$%s> echo %s ", USERNAME, WORKING_DIR, options);
   } else if (sizeOfOptions == 0) {
-    printf("%s$> echo ", USERNAME);
+    printf("%s$%s> echo ", USERNAME, WORKING_DIR);
   }
 
   // gets the echo output
@@ -152,9 +155,9 @@ void readFunc() {
   int sizeOfOptions = strlen(options);
 
   if (sizeOfOptions > 0) {
-    printf("%s$> read %s ", USERNAME, options);
+    printf("%s$%s> read %s ", USERNAME, WORKING_DIR, options);
   } else if (sizeOfOptions == 0) {
-    printf("%s$> read ", USERNAME);
+    printf("%s$%s> read ", USERNAME, WORKING_DIR);
   }
 
   // gets the file to read
@@ -170,13 +173,13 @@ void readFunc() {
   for (i = 0; i < lenOfOptions; i++) {
     if (options[i] == '-') {
       if (options[i + 1] == 'e') {
-        printf("%s$> read %s %s ", USERNAME, options, file);
+        printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
         scanf("%i", &fileCount);
         getchar();
         readFileFromBottom(file, fileCount);
         return;
       } else if (options[i + 1] == 'b') {
-        printf("%s$> read %s %s ", USERNAME, options, file);
+        printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
         scanf("%i", &fileCount);
         getchar();
         readFileFromTop(file, fileCount);
@@ -198,10 +201,52 @@ int getPosOfLastSlash(char dir[1024]) {
   int i = 0;
   for (i = 0; i < lenOfDir; i++) {
     if (dir[i] == '/') {
+      posOfLastSlash = i;
     }
   }
 
   return posOfLastSlash;
+}
+
+void goOneBack(char newDir[1024], int posOfLastSlash) {
+  if (strlen(WORKING_DIR) == 1 || posOfLastSlash == 0) {
+    printf("Cannot go back even further\n");
+    return;
+  }
+
+  int lenOfDir = strlen(WORKING_DIR);
+  int i = 0;
+  while (i < lenOfDir && i < posOfLastSlash && i < 1023) {
+    newDir[i] = WORKING_DIR[i];
+    i++;
+  }
+  newDir[i] = '\0';
+}
+
+void goOneAhead(char newDir[1024], char dirToAdd[1024]) {
+  int lenOfCurrentDir = strlen(WORKING_DIR);
+  int lenOfDirToAdd = strlen(dirToAdd);
+
+  int i = 0;
+  for (i = 0; i < lenOfCurrentDir; i++) {
+    newDir[i] = WORKING_DIR[i];
+  }
+
+  newDir[lenOfCurrentDir] = '/';
+
+  for (i = 0; i < lenOfDirToAdd; i++) {
+    newDir[i + lenOfCurrentDir + 1] = dirToAdd[i];
+  }
+}
+
+int directoryExists(const char *path) {
+  DIR *dir = opendir(path);
+  if (dir) {
+    closedir(dir);
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 void cdFunc() {
@@ -214,21 +259,20 @@ void cdFunc() {
   int posOfLastSlash = getPosOfLastSlash(WORKING_DIR);
 
   if (strcmp(dir, "..") == 0) {
-    if (strlen(WORKING_DIR) == 1 || posOfLastSlash == 0) {
-      printf("Cannot go back even further\n");
+    goOneBack(newDir, posOfLastSlash);
+  } else if (strcmp(dir, ".") == 0) {
+    return;
+  } else {
+    if (directoryExists(dir) == 1) {
+      goOneAhead(newDir, dir);
+    } else {
       return;
     }
-
-    int lenOfDir = strlen(WORKING_DIR);
-    int i = 0;
-    while (i < lenOfDir && i < posOfLastSlash && i < 1023) {
-      newDir[i] = WORKING_DIR[i];
-      i++;
-    }
-    newDir[i] = '\0'; // Null terminate the string
   }
 
-  printf("New Dir: %s\n", newDir); // Added newline
+  printf("New Dir: %s\n", newDir);
+  setenv("PWD", newDir, 1);
+  chdir(newDir);
 }
 
 void processInput(char input[256]) {
@@ -242,6 +286,8 @@ void processInput(char input[256]) {
     system("clear");
   } else if (strcmp(input, "cd") == 0) {
     cdFunc();
+  } else if (strcmp(input, "ls") == 0) {
+    // printf("%s", readdir(WORKING_DIR));
   }
 }
 
@@ -260,7 +306,7 @@ int main(int argc, char *argv[]) {
                          // differentiate between echo and cd
 
     // scans a line and clears the line so nothing is there anymore
-    printf("%s$> ", USERNAME);
+    printf("%s$%s> ", USERNAME, WORKING_DIR);
     scanf("%[^\n]s",
           input); // %[^\n]s will not ignore the space but also read it
     getchar();    // clears the line so scnaf doesnt read it
