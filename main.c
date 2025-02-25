@@ -209,7 +209,7 @@ int getPosOfLastSlash(char dir[1024]) {
 }
 
 void goOneBack(char newDir[1024], int posOfLastSlash) {
-  if (strlen(WORKING_DIR) == 1 || posOfLastSlash == 0) {
+  if (strlen(WORKING_DIR) == 1) {
     printf("Cannot go back even further\n");
     return;
   }
