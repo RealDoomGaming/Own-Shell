@@ -214,6 +214,12 @@ void goOneBack(char newDir[1024], int posOfLastSlash) {
     return;
   }
 
+  if (posOfLastSlash == 0) {
+    newDir[0] = '/';
+    newDir[1] = '\0';
+    return;
+  }
+
   int lenOfDir = strlen(WORKING_DIR);
   int i = 0;
   while (i < lenOfDir && i < posOfLastSlash && i < 1023) {
@@ -266,6 +272,7 @@ void cdFunc() {
     if (directoryExists(dir) == 1) {
       goOneAhead(newDir, dir);
     } else {
+      printf("Dir does not exist or is a file");
       return;
     }
   }
@@ -273,6 +280,22 @@ void cdFunc() {
   printf("New Dir: %s\n", newDir);
   setenv("PWD", newDir, 1);
   chdir(newDir);
+}
+
+void readDir() {
+  DIR *d;
+  struct dirent *dir;
+  d = opendir(WORKING_DIR);
+
+  if (d) {
+    while ((dir = readdir(d)) != NULL) {
+      printf("%s\n", dir->d_name);
+    }
+    closedir(d);
+  } else {
+    printf("Dir does not exist or is a file");
+    return;
+  }
 }
 
 void processInput(char input[256]) {
@@ -287,7 +310,7 @@ void processInput(char input[256]) {
   } else if (strcmp(input, "cd") == 0) {
     cdFunc();
   } else if (strcmp(input, "ls") == 0) {
-    // printf("%s", readdir(WORKING_DIR));
+    readDir();
   }
 }
 
