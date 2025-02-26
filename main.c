@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +8,13 @@
 #define MAX_LINE_COUNT_FOR_FILE 1024
 #define USERNAME getenv("USER")
 #define WORKING_DIR getenv("PWD")
+
+void trimInput(char *input) {
+  size_t inputSize = strlen(input);
+  if (inputSize > 0 && input[inputSize - 1] == '\n') {
+    input[inputSize - 1] = '\0';
+  }
+}
 
 void echoFuncOptions(char options[256]) {
   printf("%s$%s> echo ", USERNAME, WORKING_DIR);
@@ -19,21 +27,21 @@ void echoFuncOutput(char output[1024]) {
   getchar();
 }
 
-void readFuncOptions(char options[256]) {
+void readFuncOptions(char *options, size_t optionsSize) {
   printf("%s$%s> read ", USERNAME, WORKING_DIR);
-  scanf("%[^\n]s", options);
-  getchar();
+  getline(&options, &optionsSize, stdin);
+  trimInput(options);
 }
 
-void readFuncFile(char file[1024]) {
-  scanf("%[^\n]s", file);
-  getchar();
+void readFuncFile(char *file, size_t fileSize) {
+  getline(&file, &fileSize, stdin);
+  trimInput(file);
 }
 
-void cdFuncDir(char dir[1024]) {
+void cdFuncDir(char *dir, size_t dirSize) {
   printf("%s$%s> cd ", USERNAME, WORKING_DIR);
-  scanf("%[^\n]s", dir);
-  getchar();
+  getline(&dir, &dirSize, stdin);
+  trimInput(dir);
 }
 
 void echoFunc() {
@@ -145,11 +153,17 @@ void readFileFromBottom(const char *filename, long numLines) {
 
 void readFunc() {
   // declaring the variables for the options and the file to read
-  char options[256];
-  char file[1024];
+  char *options;
+  size_t optionsSize = 256;
+
+  char *file;
+  size_t fileSize = 1024;
+
+  options = (char *)malloc(optionsSize * sizeof(options));
+  file = (char *)malloc(fileSize * sizeof(file));
 
   // gets the read options
-  readFuncOptions(options);
+  readFuncOptions(options, optionsSize);
 
   // prints read + options
   int sizeOfOptions = strlen(options);
@@ -161,7 +175,7 @@ void readFunc() {
   }
 
   // gets the file to read
-  readFuncFile(file);
+  readFuncFile(file, fileSize);
 
   // processing the actuall things of the read file function:
   // getting the options and when getting the options also read and print the
@@ -192,6 +206,9 @@ void readFunc() {
   }
 
   readFileFromTop(file, countLines(fopen(file, "r")));
+
+  free(options);
+  free(file);
 }
 
 int getPosOfLastSlash(char dir[1024]) {
@@ -208,7 +225,7 @@ int getPosOfLastSlash(char dir[1024]) {
   return posOfLastSlash;
 }
 
-void goOneBack(char newDir[1024], int posOfLastSlash) {
+void goOneBack(char *newDir, int posOfLastSlash) {
   if (strlen(WORKING_DIR) == 1) {
     printf("Cannot go back even further\n");
     return;
@@ -229,7 +246,7 @@ void goOneBack(char newDir[1024], int posOfLastSlash) {
   newDir[i] = '\0';
 }
 
-void goOneAhead(char newDir[1024], char dirToAdd[1024]) {
+void goOneAhead(char *newDir, char *dirToAdd) {
   int lenOfCurrentDir = strlen(WORKING_DIR);
   int lenOfDirToAdd = strlen(dirToAdd);
 
@@ -256,11 +273,17 @@ int directoryExists(const char *path) {
 }
 
 void cdFunc() {
-  char dir[1024];
+  char *dir;
+  size_t dirSize = 1024;
 
-  cdFuncDir(dir);
+  dir = (char *)malloc(dirSize * sizeof(dirSize));
 
-  char newDir[1024] = {0};
+  cdFuncDir(dir, dirSize);
+
+  char *newDir;
+  size_t newDirSize = 1024;
+
+  newDir = (char *)malloc(newDirSize * sizeof(newDir));
 
   int posOfLastSlash = getPosOfLastSlash(WORKING_DIR);
 
@@ -272,7 +295,7 @@ void cdFunc() {
     if (directoryExists(dir) == 1) {
       goOneAhead(newDir, dir);
     } else {
-      printf("Dir does not exist or is a file");
+      printf("Dir does not exist or is a file\n");
       return;
     }
   }
@@ -280,6 +303,9 @@ void cdFunc() {
   printf("New Dir: %s\n", newDir);
   setenv("PWD", newDir, 1);
   chdir(newDir);
+
+  free(dir);
+  free(newDir);
 }
 
 void readDir() {
@@ -293,12 +319,12 @@ void readDir() {
     }
     closedir(d);
   } else {
-    printf("Dir does not exist or is a file");
+    printf("Dir does not exist or is a file\n");
     return;
   }
 }
 
-void processInput(char input[256]) {
+void processInput(char *input) {
   // when you input echo it will go into the echo function since I want my shell
   // for you to first input the command, then the options and then the input
   if (strcmp(input, "echo") == 0) {
@@ -318,22 +344,28 @@ int main(int argc, char *argv[]) {
   // clearing the screen for better readability
   system("clear");
 
-  // declaring the input variable
-  char input[256] = "fakia";
+  // declaring the input variable and the size of the input variable;
+  char *input;
+  size_t inputSize = 256;
+
+  input = (char *)malloc(inputSize * sizeof(input));
+
+  // printf("%s$%s> ", USERNAME, WORKING_DIR);
+  // getline(&input, &inputSize, stdin);
 
   // while the input is not exit we will get inputs
   while (strcmp(input, "exit") != 0) {
-    // fgets would be better but I cant get it to work
-    // fgets(input, sizeof(input), stdin);
     processInput(input); // calls the function to process the input ->
                          // differentiate between echo and cd
 
-    // scans a line and clears the line so nothing is there anymore
+    // prints the default thin and scans a line
     printf("%s$%s> ", USERNAME, WORKING_DIR);
-    scanf("%[^\n]s",
-          input); // %[^\n]s will not ignore the space but also read it
-    getchar();    // clears the line so scnaf doesnt read it
+    getline(&input, &inputSize, stdin);
+
+    trimInput(input);
   }
+
+  free(input);
 
   return 0;
 }
