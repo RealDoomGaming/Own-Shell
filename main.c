@@ -16,15 +16,15 @@ void trimInput(char *input) {
   }
 }
 
-void echoFuncOptions(char options[256]) {
+void echoFuncOptions(char *options, size_t optionsSize) {
   printf("%s$%s> echo ", USERNAME, WORKING_DIR);
-  scanf("%[^\n]s", options);
-  getchar();
+  getline(&options, &optionsSize, stdin);
+  trimInput(options);
 }
 
-void echoFuncOutput(char output[1024]) {
-  scanf("%[^\n]s", output);
-  getchar();
+void echoFuncOutput(char *output, size_t outputSize) {
+  getline(&output, &outputSize, stdin);
+  trimInput(output);
 }
 
 void readFuncOptions(char *options, size_t optionsSize) {
@@ -46,11 +46,17 @@ void cdFuncDir(char *dir, size_t dirSize) {
 
 void echoFunc() {
   // declaring the variables for the options and final output
-  char options[256];
-  char output[1024];
+  char *options;
+  size_t optionsSize = 256;
+
+  char *output;
+  size_t outputSize = 1024;
+
+  options = (char *)malloc(optionsSize * sizeof(options));
+  output = (char *)malloc(outputSize * sizeof(output));
 
   // gets the echo options
-  echoFuncOptions(options);
+  echoFuncOptions(options, optionsSize);
 
   // prints echo + options
   int sizeOfOptions = strlen(options);
@@ -62,7 +68,7 @@ void echoFunc() {
   }
 
   // gets the echo output
-  echoFuncOutput(output);
+  echoFuncOutput(output, outputSize);
 
   // processing the actual things of the echo function:
   // processes the options first
