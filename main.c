@@ -304,11 +304,36 @@ void cdFunc() {
   } else if (strcmp(dir, ".") == 0) {
     return;
   } else {
-    if (directoryExists(dir) == 1) {
-      goOneAhead(newDir, dir);
+    if (dir[0] == '/') {
+      if (directoryExists(dir)) {
+        strcpy(newDir, dir);
+      } else {
+        printf("Dir does not exist or is a file \n");
+        return;
+      }
+    } else if (dir[0] == '~') {
+      strcpy(newDir, "/home/");
+      strcat(newDir, USERNAME);
+
+      printf("%s\n", newDir);
+
+      memmove(dir, dir + 1, strlen(dir));
+
+      printf("%s\n", dir);
+
+      strcat(newDir, dir);
+
+      if (!directoryExists(newDir)) {
+        printf("Dir does not exist or is a file\n");
+        return;
+      }
     } else {
-      printf("Dir does not exist or is a file\n");
-      return;
+      if (directoryExists(dir) == 1) {
+        goOneAhead(newDir, dir);
+      } else {
+        printf("Dir does not exist or is a file\n");
+        return;
+      }
     }
   }
 
