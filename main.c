@@ -237,16 +237,16 @@ int getPosOfLastSlash(char dir[1024]) {
   return posOfLastSlash;
 }
 
-void goOneBack(char *newDir, int posOfLastSlash) {
+int goOneBack(char *newDir, int posOfLastSlash) {
   if (strlen(WORKING_DIR) == 1) {
     printf("Cannot go back even further\n");
-    return;
+    return 1;
   }
 
   if (posOfLastSlash == 0) {
     newDir[0] = '/';
     newDir[1] = '\0';
-    return;
+    return 0;
   }
 
   int lenOfDir = strlen(WORKING_DIR);
@@ -256,6 +256,7 @@ void goOneBack(char *newDir, int posOfLastSlash) {
     i++;
   }
   newDir[i] = '\0';
+  return 0;
 }
 
 void goOneAhead(char *newDir, char *dirToAdd) {
@@ -300,7 +301,9 @@ void cdFunc() {
   int posOfLastSlash = getPosOfLastSlash(WORKING_DIR);
 
   if (strcmp(dir, "..") == 0) {
-    goOneBack(newDir, posOfLastSlash);
+    if (goOneBack(newDir, posOfLastSlash)) {
+      goto cleanup;
+    }
   } else if (strcmp(dir, ".") == 0) {
     return;
   } else {
@@ -341,6 +344,7 @@ void cdFunc() {
   setenv("PWD", newDir, 1);
   chdir(newDir);
 
+cleanup:
   free(dir);
   free(newDir);
 }
