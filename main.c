@@ -44,6 +44,12 @@ void cdFuncDir(char *dir, size_t dirSize) {
   trimInput(dir);
 }
 
+void readDirOptions(char *options, size_t optionsSize) {
+  printf("%s$%s> ls ", USERNAME, WORKING_DIR);
+  getline(&options, &optionsSize, stdin);
+  trimInput(options);
+}
+
 void echoFunc() {
   // declaring the variables for the options and final output
   char *options;
@@ -314,14 +320,52 @@ void cdFunc() {
   free(newDir);
 }
 
+int getInInput(char *options, char option) {
+  int i = 0;
+  int optionsLength = strlen(options);
+  for (i = 0; i < optionsLength; i++) {
+    if (options[i] == '-') {
+      if (options[i + 1] == option) {
+        return 1;
+      }
+    }
+  }
+
+  return 0;
+}
+
 void readDir() {
   DIR *d;
   struct dirent *dir;
   d = opendir(WORKING_DIR);
 
+  char *options;
+  size_t optionsSize = 256;
+
+  options = (char *)malloc(optionsSize * sizeof(options));
+
+  readDirOptions(options, optionsSize);
+
+  int optionLess = getInInput(options, 'l');
+  int optionMore = getInInput(options, 'm');
+
+  if (optionLess == 1) {
+    optionMore = 0;
+  }
+
   if (d) {
     while ((dir = readdir(d)) != NULL) {
-      printf("%s\n", dir->d_name);
+      if (optionLess == 1) {
+        if (dir->d_name[0] != '.') {
+          printf("%s\n", dir->d_name);
+        }
+      } else if (optionMore == 1) {
+        printf("%s\n", dir->d_name);
+      } else {
+        if (strcmp(dir->d_name, "..") != 0 && strcmp(dir->d_name, ".") != 0) {
+          printf("%s\n", dir->d_name);
+        }
+      }
     }
     closedir(d);
   } else {
