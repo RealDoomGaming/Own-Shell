@@ -35,6 +35,8 @@ int getPosOfLastSlash(char dir[1024]) {
 void goOneBack(char *newDir, int posOfLastSlash) {
   if (strlen(WORKING_DIR) == 1) {
     printf("Cannot go back even further\n");
+    newDir[0] = '/';
+    newDir[1] = '\0';
     return;
   }
 

@@ -1,6 +1,8 @@
 #include "directory.h"
 #include "echo.h"
+#include "makedirectory.h"
 #include "read.h"
+#include "touchFile.h"
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +21,11 @@ void processInput(char *input) {
     cdFunc();
   } else if (strcmp(input, "ls") == 0) {
     readDir();
+  } else if (strcmp(input, "mkdir") == 0) {
+    makeDir();
+  } else if (strcmp(input, "touch") == 0) {
+    touchFile();
+  } else if (strcmp(input, "rm") == 0) {
   }
 }
 
