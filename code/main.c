@@ -2,6 +2,7 @@
 #include "echo.h"
 #include "makedirectory.h"
 #include "read.h"
+#include "rm.h"
 #include "touchFile.h"
 #include "utils.h"
 #include <stdio.h>
@@ -26,6 +27,7 @@ void processInput(char *input) {
   } else if (strcmp(input, "touch") == 0) {
     touchFile();
   } else if (strcmp(input, "rm") == 0) {
+    rm();
   }
 }
 
