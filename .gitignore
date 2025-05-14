@@ -1,4 +1,4 @@
-*.o
-*.h.gch
+./code/*.o
+./code/*.h.gch
 removeGeneratedFile.sh
 
