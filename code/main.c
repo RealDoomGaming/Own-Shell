@@ -2,6 +2,7 @@
 #include "echo.h"
 #include "help.h"
 #include "makedirectory.h"
+#include "printWorkingDir.h"
 #include "read.h"
 #include "rm.h"
 #include "touchFile.h"
@@ -31,6 +32,8 @@ void processInput(char *input) {
     rm();
   } else if (strcmp(input, "help") == 0) {
     help();
+  } else if (strcmp(input, "pwd") == 0) {
+    printWD();
   }
 }
 

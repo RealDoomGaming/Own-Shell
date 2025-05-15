@@ -64,7 +64,9 @@ void goOneAhead(char *newDir, char *dirToAdd) {
     newDir[i] = WORKING_DIR[i];
   }
 
-  newDir[lenOfCurrentDir] = '/';
+  if (newDir[lenOfCurrentDir - 1] != '/') {
+    newDir[lenOfCurrentDir] = '/';
+  }
 
   for (i = 0; i < lenOfDirToAdd; i++) {
     newDir[i + lenOfCurrentDir + 1] = dirToAdd[i];
@@ -135,6 +137,7 @@ void cdFunc() {
   printf("New Dir: %s\n", newDir);
   setenv("PWD", newDir, 1);
   chdir(newDir);
+  strcpy(WORKING_DIR, newDir);
 
   free(dir);
   free(newDir);
