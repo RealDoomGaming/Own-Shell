@@ -1,5 +1,6 @@
 #include "directory.h"
 #include "echo.h"
+#include "help.h"
 #include "makedirectory.h"
 #include "read.h"
 #include "rm.h"
@@ -28,6 +29,8 @@ void processInput(char *input) {
     touchFile();
   } else if (strcmp(input, "rm") == 0) {
     rm();
+  } else if (strcmp(input, "help") == 0) {
+    help();
   }
 }
 

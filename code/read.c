@@ -95,38 +95,50 @@ void readFunc() {
   // getting the options and when getting the options also read and print the
   // file:
   int lenOfOptions = strlen(options);
+  if (options) {
+    lenOfOptions = strlen(options);
+  }
   int i;
   int fileCount;
 
-  for (i = 0; i < lenOfOptions; i++) {
-    if (options[i] == '-') {
-      if (options[i + 1] == 'e') {
-        printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
-        scanf("%i", &fileCount);
-        getchar();
-        readFileFromBottom(file, fileCount);
-        free(options);
-        free(file);
-        return;
-      } else if (options[i + 1] == 'b') {
-        printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
-        scanf("%i", &fileCount);
-        getchar();
-        readFileFromTop(file, fileCount);
-        free(options);
-        free(file);
-        return;
-      } else {
-        printf("%c is not a valid option \n", options[i + 1]);
-        free(options);
-        free(file);
-        return;
+  if (lenOfOptions > 0) {
+    for (i = 0; i < lenOfOptions; i++) {
+      if (options[i] == '-') {
+        if (options[i + 1] == 'e') {
+          printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
+          scanf("%i", &fileCount);
+          getchar();
+          readFileFromBottom(file, fileCount);
+          free(options);
+          free(file);
+          return;
+        } else if (options[i + 1] == 'b') {
+          printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
+          scanf("%i", &fileCount);
+          getchar();
+          readFileFromTop(file, fileCount);
+          free(options);
+          free(file);
+          return;
+        } else {
+          printf("%c is not a valid option \n", options[i + 1]);
+          free(options);
+          free(file);
+          return;
+        }
       }
     }
   }
 
-  readFileFromTop(file, countLines(fopen(file, "r")));
-
+  if (file) {
+    if (fopen(file, "r")) {
+      readFileFromTop(file, countLines(fopen(file, "r")));
+    } else {
+      printf("File was not found/Is invalid\n");
+    }
+  } else {
+    printf("No file to read specified\n");
+  }
   free(options);
   free(file);
 }
