@@ -56,21 +56,11 @@ void goOneBack(char *newDir, int posOfLastSlash) {
 }
 
 void goOneAhead(char *newDir, char *dirToAdd) {
-  int lenOfCurrentDir = strlen(WORKING_DIR);
-  int lenOfDirToAdd = strlen(dirToAdd);
-
-  int i = 0;
-  for (i = 0; i < lenOfCurrentDir; i++) {
-    newDir[i] = WORKING_DIR[i];
+  char *whereWeLeftOff = stpcpy(newDir, WORKING_DIR);
+  if (*(whereWeLeftOff - 1) != '/') { // hacky pointer arithm
+    *whereWeLeftOff++ = '/';
   }
-
-  if (newDir[lenOfCurrentDir - 1] != '/') {
-    newDir[lenOfCurrentDir] = '/';
-  }
-
-  for (i = 0; i < lenOfDirToAdd; i++) {
-    newDir[i + lenOfCurrentDir + 1] = dirToAdd[i];
-  }
+  strcpy(whereWeLeftOff, dirToAdd);
 }
 
 void cdFunc() {
@@ -78,13 +68,15 @@ void cdFunc() {
   size_t dirSize = 1024;
 
   dir = (char *)malloc(dirSize * sizeof(dirSize));
+  // guaranteed to be one
 
   cdFuncDir(dir, dirSize);
 
   char *newDir;
   size_t newDirSize = 1024;
 
-  newDir = (char *)malloc(newDirSize * sizeof(newDir));
+  newDir = (char *)malloc(newDirSize);
+  memset(newDir, 0, newDirSize); // make sure this will be properly terminated
 
   int posOfLastSlash = getPosOfLastSlash(WORKING_DIR);
 
