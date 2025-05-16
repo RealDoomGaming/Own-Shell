@@ -1,3 +1,4 @@
+#include "cp.h"
 #include "directory.h"
 #include "echo.h"
 #include "help.h"
@@ -37,6 +38,8 @@ void processInput(char *input) {
     printWD();
   } else if (strcmp(input, "mv") == 0) {
     mv();
+  } else if (strcmp(input, "cp") == 0) {
+    cp();
   }
 }
 
