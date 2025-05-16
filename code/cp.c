@@ -57,7 +57,7 @@ void cp() {
   FILE *sourceFile, *destFile;
 
   // get Source
-  sourceFile = fopen(filenameSource, "rb");
+  sourceFile = fopen(filenameSource, "r");
 
   if (sourceFile == NULL) {
     printf("Could not open Source File");
@@ -65,7 +65,7 @@ void cp() {
     return;
   }
 
-  destFile = fopen(filenameDest, "wb");
+  destFile = fopen(filenameDest, "w");
 
   if (destFile == NULL) {
     printf("Could Not Open Destination File");
