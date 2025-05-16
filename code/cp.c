@@ -80,6 +80,8 @@ void cp() {
 
   free(filenameSource);
   free(filenameDest);
+  fclose(sourceFile);
+  fclose(destFile);
 
   return;
 }
