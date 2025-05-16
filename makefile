@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
-OBJECTS = ./code/main.o ./code/utils.o ./code/echo.o ./code/read.o ./code/directory.o ./code/makedirectory.o ./code/touchFile.o ./code/rm.o ./code/help.o ./code/printWorkingDir.o
+OBJECTS = ./code/main.o ./code/utils.o ./code/echo.o ./code/read.o ./code/directory.o ./code/makedirectory.o ./code/touchFile.o ./code/rm.o ./code/help.o ./code/printWorkingDir.o ./code/mv.o
 
 shell: $(OBJECTS)
 	$(CC) $(CFLAGS) -o shell $(OBJECTS)
@@ -34,6 +34,9 @@ help.o: help.c help.h utils.h
 
 printWorkingDir.o: printWorkingDir.c printWorkingDir.h utils.h 
 	$(CC) $(CFLAGS) -c printWorkingDir.c 
+
+mv.o: mv.c mv.h utils.h 
+	$(CC) $(CFLAGS) -c mv.c
 
 clean:
 	rm -f shell $(OBJECTS)
