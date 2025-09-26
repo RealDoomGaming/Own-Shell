@@ -28,8 +28,7 @@ void readFileFromTop(const char *filename, int numFile) {
 
   // while we havent reached the file end and the count isnt bigger then the
   // user input (numFile)
-  while (fgets(buffer, MAX_LINE_COUNT_FOR_FILE, file) &&
-         (numFile == -1 || count < numFile)) {
+  while (fgets(buffer, MAX_LINE_COUNT_FOR_FILE, file) && count < numFile) {
     printf("%s", buffer);
     count++;
   }
@@ -94,45 +93,46 @@ void readFunc() {
   // processing the actuall things of the read file function:
   // getting the options and when getting the options also read and print the
   // file:
-  int lenOfOptions = strlen(options);
+  int lenOfOptions;
   if (options) {
     lenOfOptions = strlen(options);
   }
   int i;
   int fileCount;
 
-  if (lenOfOptions > 0) {
-    for (i = 0; i < lenOfOptions; i++) {
-      if (options[i] == '-') {
-        if (options[i + 1] == 'e') {
-          printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
-          scanf("%i", &fileCount);
-          getchar();
-          readFileFromBottom(file, fileCount);
-          free(options);
-          free(file);
-          return;
-        } else if (options[i + 1] == 'b') {
-          printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
-          scanf("%i", &fileCount);
-          getchar();
-          readFileFromTop(file, fileCount);
-          free(options);
-          free(file);
-          return;
-        } else {
-          printf("%c is not a valid option \n", options[i + 1]);
-          free(options);
-          free(file);
-          return;
-        }
-      }
-    }
-  }
-
   if (file) {
     if (fopen(file, "r")) {
+      if (lenOfOptions > 0) {
+        for (i = 0; i < lenOfOptions; i++) {
+          if (options[i] == '-') {
+            if (options[i + 1] == 'e') {
+              printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
+              scanf("%i", &fileCount);
+              getchar();
+              readFileFromBottom(file, fileCount);
+              free(options);
+              free(file);
+              return;
+            } else if (options[i + 1] == 'b') {
+              printf("%s$%s> read %s %s ", USERNAME, WORKING_DIR, options, file);
+              scanf("%i", &fileCount);
+              getchar();
+              readFileFromTop(file, fileCount);
+              free(options);
+              free(file);
+              return;
+            } else {
+              printf("%c is not a valid option \n", options[i + 1]);
+              free(options);
+              free(file);
+              return;
+            }
+          }
+	}
+      }
       readFileFromTop(file, countLines(fopen(file, "r")));
+
+
     } else {
       printf("File was not found/Is invalid\n");
     }

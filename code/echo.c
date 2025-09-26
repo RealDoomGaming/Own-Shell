@@ -6,7 +6,7 @@
 #include <string.h>
 
 void echoFuncOptions(char *options, size_t optionsSize) {
-  printf("%s$%s> echo", USERNAME, WORKING_DIR);
+  printf("%s$%s> echo ", USERNAME, WORKING_DIR);
   getline(&options, &optionsSize, stdin);
   trimInput(options);
 }
